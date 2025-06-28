@@ -1,0 +1,40 @@
+# Gradle files
+.gradle/
+build/
+!gradle-wrapper.jar
+
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Minecraft development files
+eclipse/
+run/
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Java compiled files
+*.class
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Keep gradle wrapper jar
+!gradle/wrapper/gradle-wrapper.jar
