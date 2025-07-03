@@ -74,8 +74,11 @@ public class GameStateHandler {
             }
             if (isInGame && (message.contains("GAME OVER") || message.contains("Winner") || message.contains("won the game") || message.contains("Sending you to") || message.contains("You have been eliminated") || message.contains("Play Again") || message.contains("Thanks for playing") || message.contains("joined the lobby!"))) {
                 isInGame = false;
+                isDoubleUpMode = false; // Reset mode when game ends
                 System.out.println("Murder Mystery Helper: Game ended detected via chat message: " + message);
+                System.out.println("Murder Mystery Helper: Resetting Double Up mode to false for next game.");
                 MurderDetectionHandler.clearLists();
+                MurderDetectionHandler.setDoubleUpMode(false); // Ensure detection handler is also reset
                 TabListRenderer.resetDisplayNames();
             }
         }
@@ -102,7 +105,9 @@ public class GameStateHandler {
                 isInGame = false;
                 isDoubleUpMode = false;
                 System.out.println("Murder Mystery Helper: Player disconnected, resetting game state.");
+                System.out.println("Murder Mystery Helper: Resetting Double Up mode to false.");
                 MurderDetectionHandler.clearLists();
+                MurderDetectionHandler.setDoubleUpMode(false); // Ensure detection handler is also reset
                 TabListRenderer.resetDisplayNames();
             }
             hasPolledCurrentWorld = false;
@@ -110,12 +115,12 @@ public class GameStateHandler {
             return;
         }
         if (!hasPolledCurrentWorld) {
-            if (++tickCounter >= 20) {
+            if (++tickCounter >= 5) { // Reduced from 20 to 5 ticks (0.25 seconds) for faster mode detection
                 mc.thePlayer.sendChatMessage("/locraw");
                 hasPolledCurrentWorld = true;
                 isAwaitingLocationResponse = true;
                 tickCounter = 0;
-                System.out.println("Murder Mystery Helper: Sent /locraw command to detect current location.");
+                System.out.println("Murder Mystery Helper: Sent /locraw command to detect current location (fast mode detection).");
             }
         } else if (isAwaitingLocationResponse) {
             if (++tickCounter >= 60) {
@@ -169,7 +174,9 @@ public class GameStateHandler {
                 isInGame = false;
                 isDoubleUpMode = false;
                 System.out.println("Murder Mystery Helper: Left Murder Mystery, disabling mod features.");
+                System.out.println("Murder Mystery Helper: Resetting Double Up mode to false.");
                 MurderDetectionHandler.clearLists();
+                MurderDetectionHandler.setDoubleUpMode(false); // Ensure detection handler is also reset
                 TabListRenderer.resetDisplayNames();
             } else {
                 System.out.println("Murder Mystery Helper: Not in Murder Mystery game based on locraw response.");

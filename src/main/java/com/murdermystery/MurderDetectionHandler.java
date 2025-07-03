@@ -95,19 +95,21 @@ public class MurderDetectionHandler {
         }
     }
     
-    private void performDetectiveCheck() {
+        private void performDetectiveCheck() {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.thePlayer == null) {
             return;
         }
-        
+
         // Check if the current player has detective weapons (bow/arrow)
         if (WeaponDetector.hasAnyDetectiveWeapon(mc.thePlayer)) {
             playerIsStartingDetective = true;
-            System.out.println("Murder Mystery Helper: Current player is the starting detective! Disabling golden highlighting for this round.");
+            System.out.println("Murder Mystery Helper: *** CURRENT PLAYER IS STARTING DETECTIVE *** - Disabling golden highlighting for this round.");
+            System.out.println("Murder Mystery Helper: This means OTHER players with bows will be tracked as golden detectives.");
         } else {
             playerIsStartingDetective = false;
-            System.out.println("Murder Mystery Helper: Current player is NOT the starting detective. Golden highlighting enabled.");
+            System.out.println("Murder Mystery Helper: *** CURRENT PLAYER IS NOT STARTING DETECTIVE *** - Golden highlighting enabled.");
+            System.out.println("Murder Mystery Helper: Players with bows will be tracked as golden detectives (max " + (isDoubleUpMode ? "2" : "1") + " in " + (isDoubleUpMode ? "Double Up" : "Solo") + " mode).");
         }
     }
     
@@ -133,14 +135,19 @@ public class MurderDetectionHandler {
         }
     }
     
-    private void scanForMurderers() {
+        private void scanForMurderers() {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.theWorld == null || mc.getNetHandler() == null) {
             return;
         }
-        
+
         // Get all players in the world - IMMEDIATE scanning
         List<EntityPlayer> worldPlayers = mc.theWorld.playerEntities;
+        
+        // Debug: Show current mode state during scanning
+        if (worldPlayers.size() > 0) {
+            System.out.println("Murder Mystery Helper: Scanning " + worldPlayers.size() + " players (mode: " + (isDoubleUpMode ? "Double Up" : "Solo") + ")");
+        }
         
         // Scan for new murderers and detectives (players currently holding weapons)
         for (EntityPlayer player : worldPlayers) {
@@ -170,6 +177,8 @@ public class MurderDetectionHandler {
                 // Golden detective logic - different behavior for Solo vs Double Up
                 if (!playerIsStartingDetective) {
                     System.out.println("Murder Mystery Helper: Checking golden detective logic for " + playerName + " (isDoubleUpMode=" + isDoubleUpMode + ")");
+                    System.out.println("Murder Mystery Helper: Before assignment - firstBowHolder=" + firstBowHolder + ", secondBowHolder=" + secondBowHolder);
+                    
                     if (isDoubleUpMode) {
                         // Double Up mode: track first 2 bow holders
                         if (firstBowHolder == null) {
@@ -179,7 +188,10 @@ public class MurderDetectionHandler {
                             secondBowHolder = playerName;
                             System.out.println("Murder Mystery Helper: *** " + playerName + " is the SECOND golden detective (Double Up mode) ***");
                         } else {
-                            System.out.println("Murder Mystery Helper: " + playerName + " has bow but both golden detective slots are filled in Double Up mode.");
+                            System.out.println("Murder Mystery Helper: " + playerName + " has bow but cannot assign:");
+                            System.out.println("  - firstBowHolder filled: " + (firstBowHolder != null));
+                            System.out.println("  - secondBowHolder filled: " + (secondBowHolder != null));
+                            System.out.println("  - Same as first: " + playerName.equals(firstBowHolder));
                         }
                     } else {
                         // Solo mode: track only first bow holder
@@ -190,7 +202,8 @@ public class MurderDetectionHandler {
                             System.out.println("Murder Mystery Helper: " + playerName + " has bow but golden detective slot is already filled in Solo mode.");
                         }
                     }
-                    System.out.println("Murder Mystery Helper: Current state - firstBowHolder=" + firstBowHolder + ", secondBowHolder=" + secondBowHolder);
+                    System.out.println("Murder Mystery Helper: After assignment - firstBowHolder=" + firstBowHolder + ", secondBowHolder=" + secondBowHolder);
+                    printGoldenDetectiveStatus();
                 } else {
                     System.out.println("Murder Mystery Helper: Skipping golden detective logic for " + playerName + " (current player is starting detective)");
                 }
@@ -320,6 +333,7 @@ public class MurderDetectionHandler {
         detectiveCheckScheduledTime = 0;
         TitleHandler.resetMurdererStatus();
         System.out.println("Murder Mystery Helper: Lists cleared by chat message detection. Cooldown active for 2 seconds.");
+        System.out.println("Murder Mystery Helper: Cleared golden detective state - firstBowHolder=null, secondBowHolder=null");
     }
     
     public static List<String> getMurdererList() {
@@ -374,6 +388,16 @@ public class MurderDetectionHandler {
         } else {
             return playerName.equals(firstBowHolder);
         }
+    }
+
+    public static void printGoldenDetectiveStatus() {
+        System.out.println("Murder Mystery Helper: ===== GOLDEN DETECTIVE STATUS =====");
+        System.out.println("Murder Mystery Helper: Mode: " + (isDoubleUpMode ? "Double Up (max 2)" : "Solo (max 1)"));
+        System.out.println("Murder Mystery Helper: Player is starting detective: " + playerIsStartingDetective);
+        System.out.println("Murder Mystery Helper: First golden detective: " + (firstBowHolder != null ? firstBowHolder : "NONE"));
+        System.out.println("Murder Mystery Helper: Second golden detective: " + (secondBowHolder != null ? secondBowHolder : "NONE"));
+        System.out.println("Murder Mystery Helper: Total golden detectives: " + (firstBowHolder != null ? 1 : 0) + (secondBowHolder != null ? 1 : 0));
+        System.out.println("Murder Mystery Helper: ====================================");
     }
     
     public static void updateGoldenDetectiveFromBowPickup() {
