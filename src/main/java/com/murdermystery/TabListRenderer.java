@@ -205,6 +205,5 @@ public class TabListRenderer extends Gui {
     // Reset cached names when leaving the game/server
     public static void resetDisplayNames() {
         cachedTabNames.clear();
-        System.out.println("Murder Mystery Helper: Cleared cached tab list names.");
     }
 } 

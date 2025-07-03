@@ -60,7 +60,6 @@ public class GameStateHandler {
                     return;
                 }
                 if (message.toLowerCase().contains("locraw") || message.toLowerCase().contains("you are in") || message.toLowerCase().contains("unknown command") || message.toLowerCase().contains("server:") || message.toLowerCase().contains("gametype:") || message.toLowerCase().contains("mode:") || message.toLowerCase().contains("map:")) {
-                    System.out.println("Murder Mystery Helper: Hiding locraw related message: " + message);
                     event.setCanceled(true);
                     isAwaitingLocationResponse = false;
                     return;
@@ -68,15 +67,12 @@ public class GameStateHandler {
             }
             if (message.contains("Teaming with the Murderer is not allowed!") || message.contains("Teaming with the Detective/Innocents is not allowed!") || message.contains("Teaming with the Detective") && message.contains("not allowed")) {
                 isInGame = true;
-                System.out.println("Murder Mystery Helper: Game started detected via chat: " + message);
                 MurderDetectionHandler.clearLists();
                 TabListRenderer.resetDisplayNames();
             }
             if (isInGame && (message.contains("GAME OVER") || message.contains("Winner") || message.contains("won the game") || message.contains("Sending you to") || message.contains("You have been eliminated") || message.contains("Play Again") || message.contains("Thanks for playing") || message.contains("joined the lobby!"))) {
                 isInGame = false;
                 isDoubleUpMode = false; // Reset mode when game ends
-                System.out.println("Murder Mystery Helper: Game ended detected via chat message: " + message);
-                System.out.println("Murder Mystery Helper: Resetting Double Up mode to false for next game.");
                 MurderDetectionHandler.clearLists();
                 MurderDetectionHandler.setDoubleUpMode(false); // Ensure detection handler is also reset
                 TabListRenderer.resetDisplayNames();
@@ -91,7 +87,6 @@ public class GameStateHandler {
     public void onWorldLoad(WorldEvent.Load event) {
         hasPolledCurrentWorld = false;
         isAwaitingLocationResponse = false;
-        System.out.println("Murder Mystery Helper: World changed, will poll location on next tick.");
     }
 
     @SubscribeEvent
@@ -104,8 +99,6 @@ public class GameStateHandler {
             if (isInGame) {
                 isInGame = false;
                 isDoubleUpMode = false;
-                System.out.println("Murder Mystery Helper: Player disconnected, resetting game state.");
-                System.out.println("Murder Mystery Helper: Resetting Double Up mode to false.");
                 MurderDetectionHandler.clearLists();
                 MurderDetectionHandler.setDoubleUpMode(false); // Ensure detection handler is also reset
                 TabListRenderer.resetDisplayNames();
@@ -120,13 +113,11 @@ public class GameStateHandler {
                 hasPolledCurrentWorld = true;
                 isAwaitingLocationResponse = true;
                 tickCounter = 0;
-                System.out.println("Murder Mystery Helper: Sent /locraw command to detect current location (fast mode detection).");
             }
         } else if (isAwaitingLocationResponse) {
             if (++tickCounter >= 60) {
                 isAwaitingLocationResponse = false;
                 tickCounter = 0;
-                System.out.println("Murder Mystery Helper: Locraw response timeout, stopped waiting.");
             }
         } else {
             tickCounter = 0;
@@ -137,10 +128,6 @@ public class GameStateHandler {
         try {
             boolean isMurderMystery;
             boolean isMurderDoubleUp;
-            System.out.println("Murder Mystery Helper: Received locraw response: " + jsonMessage);
-            
-            // Enhanced debugging - show what we're looking for
-            System.out.println("Murder Mystery Helper: Checking for Murder Mystery patterns...");
             
             // Check for regular Murder Mystery mode - try multiple patterns
             isMurderMystery = jsonMessage.contains("\"gametype\":\"MURDER_MYSTERY\"") || 
@@ -156,30 +143,21 @@ public class GameStateHandler {
                               jsonMessage.contains("Double Up") ||
                               jsonMessage.toLowerCase().contains("double");
             
-            System.out.println("Murder Mystery Helper: isMurderMystery=" + isMurderMystery + ", isMurderDoubleUp=" + isMurderDoubleUp);
-            
             if (isMurderMystery || isMurderDoubleUp) {
                 isInGame = true;
                 if (isMurderDoubleUp) {
                     isDoubleUpMode = true;
-                    System.out.println("Murder Mystery Helper: *** DETECTED MURDER MYSTERY DOUBLE UP MODE ***");
                 } else {
                     isDoubleUpMode = false;
-                    System.out.println("Murder Mystery Helper: *** DETECTED MURDER MYSTERY SOLO MODE ***");
                 }
                 // Notify MurderDetectionHandler about the mode change
                 MurderDetectionHandler.setDoubleUpMode(isDoubleUpMode);
-                System.out.println("Murder Mystery Helper: Notified MurderDetectionHandler. Double Up mode: " + isDoubleUpMode);
             } else if (isInGame) {
                 isInGame = false;
                 isDoubleUpMode = false;
-                System.out.println("Murder Mystery Helper: Left Murder Mystery, disabling mod features.");
-                System.out.println("Murder Mystery Helper: Resetting Double Up mode to false.");
                 MurderDetectionHandler.clearLists();
                 MurderDetectionHandler.setDoubleUpMode(false); // Ensure detection handler is also reset
                 TabListRenderer.resetDisplayNames();
-            } else {
-                System.out.println("Murder Mystery Helper: Not in Murder Mystery game based on locraw response.");
             }
         }
         catch (Exception e) {
@@ -200,11 +178,8 @@ public class GameStateHandler {
         boolean wasInGame = isInGame;
         isInGame = inGame;
         if (wasInGame != inGame) {
-            if (inGame) {
-                System.out.println("Murder Mystery Helper: Manual game state set to IN GAME");
-            } else {
+            if (!inGame) {
                 isDoubleUpMode = false;
-                System.out.println("Murder Mystery Helper: Manual game state set to OUT OF GAME");
                 MurderDetectionHandler.clearLists();
                 TabListRenderer.resetDisplayNames();
             }
@@ -216,6 +191,5 @@ public class GameStateHandler {
         isDoubleUpMode = false;
         MurderDetectionHandler.clearLists();
         TabListRenderer.resetDisplayNames();
-        System.out.println("Murder Mystery Helper: Game state reset.");
     }
 }

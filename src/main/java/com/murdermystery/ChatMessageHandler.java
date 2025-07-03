@@ -34,7 +34,6 @@ public class ChatMessageHandler {
             
             // Check for Hypixel's "Sending you to" message
             if (message.length() >= 13 && message.startsWith("Sending you to")) {
-                System.out.println("Murder Mystery Helper: Detected lobby change message, clearing lists and resetting tab list.");
                 MurderDetectionHandler.clearLists();
                 TabListRenderer.resetDisplayNames();
             }
@@ -44,13 +43,11 @@ public class ChatMessageHandler {
             String unformattedMessage = removeColorCodes(message);
             if (unformattedMessage != null && unformattedMessage.contains("You get your sword in")) {
                 TitleHandler.setPlayerMurderer(true);
-                System.out.println("Murder Mystery Helper: Player is now the MURDERER! (detected via chat message)");
             }
             
             // Check for "The Murderer has received their sword!" message
             // This is when detectives get their bows, so we need to check if we're the detective
             if (unformattedMessage != null && unformattedMessage.contains("The Murderer has received their sword!")) {
-                System.out.println("Murder Mystery Helper: Murderer received sword, scheduling detective check...");
                 MurderDetectionHandler.scheduleDetectiveCheck();
             }
             
@@ -63,11 +60,9 @@ public class ChatMessageHandler {
                  unformattedMessage.contains("found the bow") ||
                  (unformattedMessage.toLowerCase().contains("bow") && unformattedMessage.toLowerCase().contains("pick")))) {
                 MurderDetectionHandler.updateGoldenDetectiveFromBowPickup();
-                System.out.println("Murder Mystery Helper: Bow pickup detected, updating golden detective.");
             }
         } catch (Exception e) {
             // Catch any unexpected errors to prevent crashes
-            System.out.println("Murder Mystery Helper: Error processing chat message: " + e.getMessage());
         }
     }
     

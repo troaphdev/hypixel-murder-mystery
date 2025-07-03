@@ -68,7 +68,7 @@ public class ScoreboardHandler {
         // If we found "Total Wins:" and haven't already detected it this session
         if (foundTotalWins && !hasDetectedTotalWins) {
             hasDetectedTotalWins = true;
-                                System.out.println("Murder Mystery Helper: Detected 'Total Wins:' on scoreboard, clearing lists and resetting tab list.");
+                
             MurderDetectionHandler.clearLists();
             TabListRenderer.resetDisplayNames();
         } else if (!foundTotalWins) {

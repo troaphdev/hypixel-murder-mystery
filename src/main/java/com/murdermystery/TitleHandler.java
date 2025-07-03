@@ -66,12 +66,10 @@ public class TitleHandler {
         // Update murderer status based on hotbar contents - IMMEDIATE
         if (foundMurdererWeapon && !isPlayerMurderer) {
             setPlayerMurderer(true);
-            System.out.println("Murder Mystery Helper: Player is now the MURDERER! (detected via hotbar weapon) Enabling victim ESP.");
         } else if (!foundMurdererWeapon && isPlayerMurderer) {
             // Only reset if no other detection methods are active
             // This prevents flickering when switching items
             resetMurdererStatus();
-            System.out.println("Murder Mystery Helper: No murderer weapon in hotbar, resetting murderer status.");
         }
     }
     
@@ -105,7 +103,6 @@ public class TitleHandler {
                 String unformattedTitle = currentTitle.replaceAll("[§&][0-9a-fk-or]", "");
                 if (unformattedTitle.toUpperCase().contains("ROLE: MURDERER")) {
                     setPlayerMurderer(true);
-                    System.out.println("Murder Mystery Helper: Player is now the MURDERER! (detected via title) Enabling victim ESP.");
                 }
             }
         } catch (Exception e) {
@@ -119,14 +116,10 @@ public class TitleHandler {
     
     public static void setPlayerMurderer(boolean isMurderer) {
         isPlayerMurderer = isMurderer;
-        if (isMurderer) {
-            System.out.println("Murder Mystery Helper: Player murderer status set to true.");
-        }
     }
     
     public static void resetMurdererStatus() {
         isPlayerMurderer = false;
         lastTitle = "";
-        System.out.println("Murder Mystery Helper: Murderer status reset.");
     }
 } 

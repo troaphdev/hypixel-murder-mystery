@@ -53,16 +53,7 @@ public class NametagRenderer {
         int nametagColor = getNametagColor(playerName);
         String rankPrefix = getRankPrefix(playerName);
         
-        // Enhanced debug output to check detection
-        if (Math.random() < 0.01) { // Only print occasionally to avoid spam
-            System.out.println("Nametag Debug - Player: " + playerName + 
-                             ", Prefix: '" + rankPrefix + "'" +
-                             ", Color: 0x" + Integer.toHexString(nametagColor).toUpperCase() +
-                             ", InMurdererList: " + MurderDetectionHandler.getMurdererList().contains(playerName) +
-                             ", InDetectiveList: " + MurderDetectionHandler.getDetectiveList().contains(playerName) +
-                             ", FirstBowHolder: " + MurderDetectionHandler.getFirstBowHolder() +
-                             ", IsPlayerMurderer: " + TitleHandler.isPlayerMurderer());
-        }
+
         
         // Get the color for this player and render with separate prefix/username rendering
         int textColor = getNametagColor(playerName);
