@@ -22,17 +22,26 @@ public class TitleHandler {
             return;
         }
         
-        // Only check for murderer status when in a Murder Mystery game
-        if (!GameStateHandler.isInGame()) {
-            // Reset murderer status when not in game
-            if (isPlayerMurderer) {
-                isPlayerMurderer = false;
-            }
+                Minecraft mc = Minecraft.getMinecraft();
+        if (mc.thePlayer == null || mc.ingameGUI == null) {
             return;
         }
-        
-        Minecraft mc = Minecraft.getMinecraft();
-        if (mc.thePlayer == null || mc.ingameGUI == null) {
+
+        // Only check for murderer status when in a Murder Mystery game
+        if (!GameStateHandler.isInGame()) {
+            // If we're in lobby and detect a role title, trigger game start
+            if (GameStateHandler.isInLobby()) {
+                titleCheckCounter++;
+                if (titleCheckCounter >= 10) {
+                    titleCheckCounter = 0;
+                    checkTitleForGameStart(mc);
+                }
+            } else {
+                // Reset murderer status when not in game or lobby
+                if (isPlayerMurderer) {
+                    isPlayerMurderer = false;
+                }
+            }
             return;
         }
         
@@ -73,6 +82,56 @@ public class TitleHandler {
         }
     }
     
+    private void checkTitleForGameStart(Minecraft mc) {
+        try {
+            // Access the title display fields using reflection
+            GuiIngame gui = mc.ingameGUI;
+            
+            // Try multiple possible field names for title
+            String currentTitle = null;
+            try {
+                Field titleField = GuiIngame.class.getDeclaredField("displayedTitle");
+                titleField.setAccessible(true);
+                currentTitle = (String) titleField.get(gui);
+            } catch (Exception e1) {
+                try {
+                    Field titleField = GuiIngame.class.getDeclaredField("field_175200_n"); // Obfuscated name
+                    titleField.setAccessible(true);
+                    currentTitle = (String) titleField.get(gui);
+                } catch (Exception e2) {
+                    // Title detection failed, skip this tick
+                    return;
+                }
+            }
+            
+            if (currentTitle != null && !currentTitle.equals(lastTitle)) {
+                lastTitle = currentTitle;
+                
+                // Check if the title contains role information indicating game start
+                String unformattedTitle = currentTitle.replaceAll("[§&][0-9a-fk-or]", "");
+                String upperTitle = unformattedTitle.toUpperCase();
+                
+                if (upperTitle.contains("ROLE:") || 
+                    upperTitle.contains("YOU ARE") || 
+                    upperTitle.contains("MURDERER") || 
+                    upperTitle.contains("DETECTIVE") || 
+                    upperTitle.contains("INNOCENT")) {
+                    
+                    // Trigger game start
+                    GameStateHandler.setInGame(true);
+                    System.out.println("Murder Mystery Helper: Game start detected via title! Mod activated.");
+                    
+                    // Also check if we're the murderer
+                    if (upperTitle.contains("MURDERER")) {
+                        setPlayerMurderer(true);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Reflection failed completely - title detection not available
+        }
+    }
+
     private void checkTitleForMurdererRole(Minecraft mc) {
         try {
             // Access the title display fields using reflection
