@@ -118,11 +118,18 @@ public class MurderDetectionHandler {
     }
 
     public static void setDoubleUpMode(boolean doubleUp) {
+        boolean wasDoubleUp = isDoubleUpMode;
         isDoubleUpMode = doubleUp;
         if (doubleUp) {
-            System.out.println("Murder Mystery Helper: Double Up mode enabled - will track 2 golden detectives.");
+            System.out.println("Murder Mystery Helper: *** DOUBLE UP MODE ENABLED *** - will track 2 golden detectives.");
+            System.out.println("Murder Mystery Helper: firstBowHolder=" + firstBowHolder + ", secondBowHolder=" + secondBowHolder);
         } else {
-            System.out.println("Murder Mystery Helper: Solo mode enabled - will track 1 golden detective.");
+            System.out.println("Murder Mystery Helper: *** SOLO MODE ENABLED *** - will track 1 golden detective.");
+            System.out.println("Murder Mystery Helper: firstBowHolder=" + firstBowHolder);
+        }
+        
+        if (wasDoubleUp != doubleUp) {
+            System.out.println("Murder Mystery Helper: Mode changed from " + (wasDoubleUp ? "Double Up" : "Solo") + " to " + (doubleUp ? "Double Up" : "Solo"));
         }
     }
     
@@ -162,22 +169,30 @@ public class MurderDetectionHandler {
                 
                 // Golden detective logic - different behavior for Solo vs Double Up
                 if (!playerIsStartingDetective) {
+                    System.out.println("Murder Mystery Helper: Checking golden detective logic for " + playerName + " (isDoubleUpMode=" + isDoubleUpMode + ")");
                     if (isDoubleUpMode) {
                         // Double Up mode: track first 2 bow holders
                         if (firstBowHolder == null) {
                             firstBowHolder = playerName;
-                            System.out.println("Murder Mystery Helper: " + playerName + " is the first golden detective (Double Up mode)!");
+                            System.out.println("Murder Mystery Helper: *** " + playerName + " is the FIRST golden detective (Double Up mode) ***");
                         } else if (secondBowHolder == null && !playerName.equals(firstBowHolder)) {
                             secondBowHolder = playerName;
-                            System.out.println("Murder Mystery Helper: " + playerName + " is the second golden detective (Double Up mode)!");
+                            System.out.println("Murder Mystery Helper: *** " + playerName + " is the SECOND golden detective (Double Up mode) ***");
+                        } else {
+                            System.out.println("Murder Mystery Helper: " + playerName + " has bow but both golden detective slots are filled in Double Up mode.");
                         }
                     } else {
                         // Solo mode: track only first bow holder
                         if (firstBowHolder == null) {
                             firstBowHolder = playerName;
-                            System.out.println("Murder Mystery Helper: " + playerName + " is the first bow holder (Solo mode)!");
+                            System.out.println("Murder Mystery Helper: *** " + playerName + " is the golden detective (Solo mode) ***");
+                        } else {
+                            System.out.println("Murder Mystery Helper: " + playerName + " has bow but golden detective slot is already filled in Solo mode.");
                         }
                     }
+                    System.out.println("Murder Mystery Helper: Current state - firstBowHolder=" + firstBowHolder + ", secondBowHolder=" + secondBowHolder);
+                } else {
+                    System.out.println("Murder Mystery Helper: Skipping golden detective logic for " + playerName + " (current player is starting detective)");
                 }
                 
                 // Add to detective list if not already present
