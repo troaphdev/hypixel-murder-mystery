@@ -1,0 +1,16 @@
+[
+{
+  "modid": "troaphmod",
+  "name": "Troaph Mod",
+  "description": "Shows Hypixel levels in the tab list for Minecraft 1.8.9",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Troaph"],
+  "credits": "Based on Forge modding tutorial",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
